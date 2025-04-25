@@ -27,7 +27,8 @@ from py_spamoor.helper import (
     generate_nonzero_bytes, generate_mixed_bytes,
     prepare_access_list, generate_random_access_list,
     prepare_blob, get_max_calldata_nonzeros_for_limit, 
-    get_max_calldata_mix_for_limit
+    get_max_calldata_mix_for_limit, get_max_access_list_for_limit,
+    generate_random_blobs
 )
 
 # Configure logging
@@ -331,8 +332,12 @@ def handle_calldata_mix(client: Client, wallet: Wallet, args) -> Dict[str, Any]:
 
 def handle_access_list(client: Client, wallet: Wallet, args) -> Dict[str, Any]:
     """Handle access list strategy."""
-    # Generate a random access list with 5 addresses, each with 10 storage keys
-    access_list = generate_random_access_list(5, 10)
+    block_gas_limit = client.block_gas_limit
+    gas_limit = args.gas_limit if args.gas_limit else block_gas_limit
+    access_list = generate_random_access_list(
+        1,
+        get_max_access_list_for_limit(gas_limit), 
+    )
     
     return wallet.build_transaction(
         wallet.get_address(),
@@ -345,7 +350,7 @@ def handle_access_list(client: Client, wallet: Wallet, args) -> Dict[str, Any]:
 def handle_blobs(client: Client, wallet: Wallet, args) -> Dict[str, Any]:
     """Handle blob transaction strategy."""
     # Generate a single random blob
-    blob_data = [prepare_blob()]
+    blob_data = generate_random_blobs(6)
     
     return wallet.build_transaction(
         wallet.get_address(),
