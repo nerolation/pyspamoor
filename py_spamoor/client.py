@@ -8,8 +8,6 @@ from web3 import Web3
 from web3.middleware import geth_poa_middleware
 from web3.types import HexBytes
 
-from py_spamoor.wallet import Wallet
-
 
 class ClientConfig:
     """Configuration for an Ethereum client."""
@@ -60,6 +58,7 @@ class Client:
             
         # Add POA middleware for compatibility with networks like Goerli
         self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+        self.block_gas_limit = int(self.w3.eth.get_block('latest')['gasLimit'])
         
         # Verify connection (commented out to avoid requiring a working RPC)
         # if not self.w3.is_connected():
@@ -69,6 +68,10 @@ class Client:
         """Get the client name derived from the RPC URL."""
         return self.name
     
+    def get_block_gas_limit(self) -> str:
+        """Get the gas limit derived from the RPC URL."""
+        return self.block_gas_limit
+    
     def get_client_group(self) -> str:
         """Get the client group."""
         return self.client_group
@@ -76,15 +79,6 @@ class Client:
     def get_web3(self) -> Web3:
         """Get the Web3 instance."""
         return self.w3
-    
-    def update_wallet(self, wallet: Wallet) -> None:
-        """
-        Update a wallet's information using this client.
-        
-        Args:
-            wallet: Wallet to update
-        """
-        wallet.update_from_web3(self.w3)
     
     def get_nonce(self, address: str) -> int:
         """
@@ -98,7 +92,7 @@ class Client:
         """
         return self.w3.eth.get_transaction_count(address)
     
-    def get_transaction_receipt(self, tx_hash) -> Optional[dict]:
+    def wait_for_transaction_receipt(self, tx_hash) -> Optional[dict]:
         """
         Get a transaction receipt.
         
@@ -109,7 +103,7 @@ class Client:
             Transaction receipt or None if not found
         """
         try:
-            return self.w3.eth.get_transaction_receipt(tx_hash)
+            return self.w3.eth.wait_for_transaction_receipt(tx_hash)
         except Exception:
             return None
             
