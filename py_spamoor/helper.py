@@ -173,6 +173,18 @@ def generate_mixed_bytes(num_zero_bytes, num_nonzero_bytes):
 
 BASE_COST = 21_000
 COST_CALLDATA_ZEROS = 10
-
+COST_CALLDATA_NONZEROS = 40
 def get_max_calldata_zeros_for_limit(block_gas_limit):
     return (block_gas_limit - BASE_COST) // COST_CALLDATA_ZEROS
+
+def get_max_calldata_nonzeros_for_limit(block_gas_limit):
+    return (block_gas_limit - BASE_COST) // COST_CALLDATA_NONZEROS
+
+def get_max_calldata_mix_for_limit(block_gas_limit):
+    available_gas = block_gas_limit - BASE_COST
+    nonzero_gas = int(available_gas * 71 / 100)
+    zero_gas = available_gas - nonzero_gas
+    
+    num_nonzeros = nonzero_gas // COST_CALLDATA_NONZEROS
+    num_zeros = zero_gas // COST_CALLDATA_ZEROS
+    return num_nonzeros, num_zeros
