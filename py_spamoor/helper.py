@@ -1,5 +1,7 @@
 import json
 import re
+import secrets
+import random
 from typing import Optional, List, Tuple, Dict
 
 def load_private_keys(file_path="pks.txt"):

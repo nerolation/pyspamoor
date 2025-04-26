@@ -6,7 +6,12 @@ from typing import Dict, Any, Union
 from web3 import Web3
 from eth_account import Account
 from web3.types import TxParams, HexBytes
-from py_spamoor.client import Client
+
+# Try both package import and local import
+try:
+    from py_spamoor.client import Client
+except ImportError:
+    from client import Client
 
 class Wallet:
     """Wrapper for an Ethereum wallet with operations needed for transactions."""
@@ -63,14 +68,14 @@ class Wallet:
         if kwargs.get("nonce") is not None:
             tx_params["nonce"] = kwargs["nonce"]
             
-        # Add nonce if provided
+        # Add accessList if provided
         if kwargs.get("accessList") is not None:
             tx_params["accessList"] = kwargs["accessList"]
             
         if kwargs.get("blob_data"):
-            if max_fee_per_blob_gas is None:
+            if kwargs.get("max_fee_per_blob_gas") is None:
                 raise ValueError("max_fee_per_blob_gas is required when using blob_data_list")
-            tx.update({
+            tx_params.update({
                 "type": 3,
                 "maxFeePerBlobGas": kwargs.get("max_fee_per_blob_gas", 1000000000),
             })
