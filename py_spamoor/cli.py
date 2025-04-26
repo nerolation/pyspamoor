@@ -10,26 +10,51 @@ import random
 import logging
 import json
 from typing import List, Dict, Any, Optional, Callable
+
+# Add the parent directory to sys.path to allow direct execution
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
 from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn
 from rich.logging import RichHandler
 
-from py_spamoor.wallet import Wallet
-from py_spamoor.wallet_pool import (
-    WalletPool, Strategy, WalletSelectionMode, 
-    ClientSelectionMode, StrategySelectionMode
-)
-from py_spamoor.client import Client, ClientConfig
-from py_spamoor.helper import (
-    load_private_keys, parse_el_rpc_endpoints, 
-    get_max_calldata_zeros_for_limit, generate_zero_bytes,
-    generate_nonzero_bytes, generate_mixed_bytes,
-    prepare_access_list, generate_random_access_list,
-    prepare_blob, get_max_calldata_nonzeros_for_limit, 
-    get_max_calldata_mix_for_limit, get_max_access_list_for_limit,
-    generate_random_blobs
-)
+# Local imports - try both relative and absolute imports depending on how the script is run
+try:
+    # When running as installed package
+    from py_spamoor.wallet import Wallet
+    from py_spamoor.wallet_pool import (
+        WalletPool, Strategy, WalletSelectionMode, 
+        ClientSelectionMode, StrategySelectionMode
+    )
+    from py_spamoor.client import Client, ClientConfig
+    from py_spamoor.helper import (
+        load_private_keys, parse_el_rpc_endpoints, 
+        get_max_calldata_zeros_for_limit, generate_zero_bytes,
+        generate_nonzero_bytes, generate_mixed_bytes,
+        prepare_access_list, generate_random_access_list,
+        prepare_blob, get_max_calldata_nonzeros_for_limit, 
+        get_max_calldata_mix_for_limit, get_max_access_list_for_limit,
+        generate_random_blobs
+    )
+except ImportError:
+    # When running script directly
+    from wallet import Wallet
+    from wallet_pool import (
+        WalletPool, Strategy, WalletSelectionMode, 
+        ClientSelectionMode, StrategySelectionMode
+    )
+    from client import Client, ClientConfig
+    from helper import (
+        load_private_keys, parse_el_rpc_endpoints, 
+        get_max_calldata_zeros_for_limit, generate_zero_bytes,
+        generate_nonzero_bytes, generate_mixed_bytes,
+        prepare_access_list, generate_random_access_list,
+        prepare_blob, get_max_calldata_nonzeros_for_limit, 
+        get_max_calldata_mix_for_limit
+    )
 
 # Configure logging
 logging.basicConfig(
